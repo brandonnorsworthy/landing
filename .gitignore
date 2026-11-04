@@ -1,0 +1,11 @@
+node_modules/
+bin/
+obj/
+dist/
+coverage/
+*.log
+.env
+.vs/
+.idea/
+.vscode/
+.DS_Store
