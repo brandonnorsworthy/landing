@@ -18,7 +18,7 @@ public enum GroupKind
     External = 1,
 }
 
-/// <summary>One link on the board. One URL per bookmark (LAN DNS resolves home.example names locally).</summary>
+/// <summary>One link on the board. One URL per bookmark (LAN DNS resolves the site's names locally).</summary>
 public sealed class Bookmark
 {
     public int Id { get; set; }

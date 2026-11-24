@@ -40,7 +40,7 @@ export function LoadError({
       <Blobs sad />
       <h3>the vibes are off</h3>
       <p>
-        Couldn't reach home.example to load your bookmarks. The server may be restarting, or this device may be
+        Couldn't reach the server to load your bookmarks. The server may be restarting, or this device may be
         off the home network.
       </p>
       <button type="button" className="btn primary" onClick={onRetry}>

@@ -2,11 +2,11 @@
 
 ## End goal
 
-The home base for Brandon's network, served at `home.example`. Open it from any device, find the bookmark you want, and leave in seconds. Bookmarks live centrally on the site, so no device needs its own copy, and nobody has to remember ports or IPs. It also gives a throwaway sandbox app a place to be linked before it has a domain.
+The home base for a home network, served at the network's own domain. Open it from any device, find the bookmark you want, and leave in seconds. Bookmarks live centrally on the site, so no device needs its own copy, and nobody has to remember ports or IPs. It also gives a throwaway sandbox app a place to be linked before it has a domain.
 
 Eventually it grows into an at-a-glance dashboard (live per-service info, system health, weather) with admin-only editing, anonymous read-only viewing, and private tiles hidden from public visitors.
 
-**Users:** Brandon, plus household and friends. LAN-only at first; local DNS resolves `home.example` on the home network.
+**Users:** the household and friends. LAN-only at first; local DNS resolves the site's domain on the home network.
 
 **Design:** a warm, earthy, phone-first design (390px prototype, "homelab & good vibes"). Desktop is the same design stretched into a responsive tile grid.
 
@@ -30,11 +30,11 @@ Current phase: **Phase 0 (MVP)**, built and tested on the dev PC; production rol
 
 ## Decisions and design notes
 
-- **One URL per bookmark.** Local DNS resolves `home.example` on the home network, so there's no need for separate LAN and external URLs.
+- **One URL per bookmark.** Local DNS resolves the site's names on the home network, so there's no need for separate LAN and external URLs.
 - **No-login editing is MVP-only.** It's acceptable because the MVP is LAN-only; auth (Phase 1) must ship before any public exposure.
 - **`private` flag is stored from the start** (not enforced until Phase 1) to avoid a later data migration.
 - **The idle lock screen is cosmetic.** Anyone can tap through it. It is not, and must not be treated as, access control.
-- **Server context:** `home.example` has no nginx vhost today, so this will be the first thing served at the bare domain. See `docs/home.example/README.md`.
+- **Server context:** the site is the first thing served at the bare domain; host nginx proxies it to the container (details in the server docs, not in this repo).
 - **Reference design:** `mockups/` holds the original phone-sized prototype (open `mockups/index.html`) and a board of the screens it lacks (`mockups/screens.html`: desktop grid, add/edit, arrange, empty/loading/error). Both are references for the port, not code to carry forward.
 
 ### What the prototype has that Phase 0 keeps, changes, or defers
@@ -50,7 +50,7 @@ Current phase: **Phase 0 (MVP)**, built and tested on the dev PC; production rol
 - **Warning** (SPOKE-24): reachable but slow (over 2 s), or a 5xx. Any answer below 500 within 2 s is up (401/403 mean the app is alive behind its own login); no answer within 5 s is down. External links are not checked.
 - **Earthy mode** (SPOKE-25): removed; it did nothing in the prototype.
 - **Settings** (SPOKE-25): per device, in the browser's localStorage.
-- **Designs** (SPOKE-26): `mockups/screens.html`, approved by Brandon.
+- **Designs** (SPOKE-26): `mockups/screens.html`, approved.
 
 ## Tech
 
@@ -61,7 +61,7 @@ Current phase: **Phase 0 (MVP)**, built and tested on the dev PC; production rol
 
 ### Database
 
-Bookmarks live in Postgres, per `docs/policy.md` (Brandon, 2026-11-23):
+Bookmarks live in Postgres, per the workspace database policy (2026-11-23):
 
 | Thing | Name | Purpose |
 |---|---|---|

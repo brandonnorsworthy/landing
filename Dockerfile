@@ -1,4 +1,4 @@
-# home.example landing: one image serves the page and the API on 8080 (ASP.NET's default).
+# landing: one image serves the page and the API on 8080 (ASP.NET's default).
 # Runs as: (default) the site, `migrate` (EF Core migrations as the migrator role), `healthcheck`.
 
 # 1. Page: React + Vite, built to static files

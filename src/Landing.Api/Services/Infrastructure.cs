@@ -46,7 +46,7 @@ public static class HttpClientSetup
         services.AddHttpClient(Inspector, c =>
             {
                 c.Timeout = Timeout.InfiniteTimeSpan;
-                c.DefaultRequestHeaders.UserAgent.ParseAdd("landing/1.0");
+                c.DefaultRequestHeaders.UserAgent.ParseAdd("landing-bookmarks/1.0");
             })
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
