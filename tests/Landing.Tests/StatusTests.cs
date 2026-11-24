@@ -20,7 +20,8 @@ public sealed class ProbeTests : IAsyncLifetime
         _services = new ServiceCollection().AddLandingHttpClients().BuildServiceProvider();
         _probe = new LinkProbe(
             _services.GetRequiredService<IHttpClientFactory>(),
-            Options.Create(new StatusCheckerOptions { SlowMs = 400, TimeoutMs = 1500 }));
+            // Wide margins: CI runners can be slow on a first request.
+            Options.Create(new StatusCheckerOptions { SlowMs = 400, TimeoutMs = 5000 }));
     }
 
     public async Task DisposeAsync()

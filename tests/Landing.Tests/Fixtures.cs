@@ -80,7 +80,7 @@ public sealed class FakeSite : IAsyncDisposable
         app.MapGet("/boom", () => Results.StatusCode(503));
         app.MapGet("/slow", async () =>
         {
-            await Task.Delay(700);
+            await Task.Delay(1500);
             return "late";
         });
         app.MapGet("/hang", async (CancellationToken ct) =>

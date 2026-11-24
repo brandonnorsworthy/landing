@@ -40,9 +40,14 @@ updates:
           - "github/codeql-action/*"
     open-pull-requests-limit: 10
 
-  # Docker base images (node build, .NET SDK and ASP.NET runtime)
+  # Docker base images (node build, .NET SDK and ASP.NET runtime). Majors move with the
+  # project on purpose (.NET 10 is the policy line; Node stays on the 24 LTS), so only
+  # minor/patch digests and tags come in here.
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 10

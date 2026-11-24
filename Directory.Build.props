@@ -1,7 +1,7 @@
 <Project>
   <!-- Shared settings for every project. The product version lives here (see .githooks/version.sh). -->
   <PropertyGroup>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
