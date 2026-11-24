@@ -12,9 +12,9 @@ Eventually it grows into an at-a-glance dashboard (live per-service info, system
 
 ## Phases
 
-Current phase: **Phase 0 (MVP)**, built and tested on the dev PC; production rollout in progress (SPOKE-245).
+Current phase: **Phase 1 (Auth)**, not started. Phase 0 shipped to production on 2026-11-24.
 
-- [ ] **Phase 0 / MVP**
+- [x] **Phase 0 / MVP** (done 2026-11-24, v0.2.3)
   - Tiles that link to their URL (one URL per bookmark), with name, group, and icon or favicon
   - Add, edit, delete, and move between groups in the page, with no login
   - Groups, search/filter, favorites row, separate external-links group
