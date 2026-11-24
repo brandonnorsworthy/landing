@@ -12,7 +12,7 @@ Eventually it grows into an at-a-glance dashboard (live per-service info, system
 
 ## Phases
 
-Current phase: **Phase 0 (MVP)**, not started.
+Current phase: **Phase 0 (MVP)**, built and tested on the dev PC; production rollout in progress (SPOKE-245).
 
 - [ ] **Phase 0 / MVP**
   - Tiles that link to their URL (one URL per bookmark), with name, group, and icon or favicon
@@ -45,21 +45,55 @@ Current phase: **Phase 0 (MVP)**, not started.
 - **Missing from the prototype:** add/edit/delete form, reordering and moving between groups, `temporary` tag, `private` flag, per-tile last-checked time, empty/loading/error states, desktop layout, favicons (it uses colored initials).
 - **Prototype bugs (don't port):** the `dangerouslySetInnerHTML` prop isn't handled by its `h()` helper, so the containers line never renders; the "Earthy mode" toggle does nothing.
 
-## Open questions
+## Settled questions (2026-11-23)
 
-- What `warning` means for a reachability check (slow? non-2xx?).
-- "Earthy mode" toggle in the design: real theme switch, or remove?
-- Do Settings persist across devices, or stay per device?
-- ~~Designs still needed: add/edit form, empty state, loading and error states, desktop grid.~~ Drafted in `mockups/screens.html` (SPOKE-26), pending Brandon's review.
+- **Warning** (SPOKE-24): reachable but slow (over 2 s), or a 5xx. Any answer below 500 within 2 s is up (401/403 mean the app is alive behind its own login); no answer within 5 s is down. External links are not checked.
+- **Earthy mode** (SPOKE-25): removed; it did nothing in the prototype.
+- **Settings** (SPOKE-25): per device, in the browser's localStorage.
+- **Designs** (SPOKE-26): `mockups/screens.html`, approved by Brandon.
 
 ## Tech
 
-Mostly not chosen yet. Defaults come from `docs/policy.md` at implementation time.
+- **API:** .NET 10 minimal API, EF Core with Npgsql (`src/Landing.Api`). Serves the page from `wwwroot` and the JSON API under `/api`.
+- **Page:** React + TypeScript (strict) + Vite (`src/Landing.Web`), fonts bundled so nothing loads from other sites (CSP `'self'`).
+- **Tests:** xUnit integration tests against a real Postgres (`tests/Landing.Tests`); ESLint, Prettier and `tsc` for the page.
+- **Image:** `ghcr.io/brandonnorsworthy/landing`, port 8080, published by `release.yml`. Deployed by `stacks/landing`.
 
-**Decided (Brandon, 2026-11-23): bookmarks live in Postgres**, following the policy's per-product setup:
+### Database
 
-- Database `landing_db` on the existing local Postgres (dev PC), owned by the migration role.
-- `landing_migrator`: owns the schema and runs migrations only (DDL).
-- `landing_app`: the role the running site uses. Data access only (`SELECT`/`INSERT`/`UPDATE`/`DELETE` on its tables), with no DDL and no ownership. It isn't read-only, because the UI adds, edits, and deletes bookmarks.
-- Parameterized queries only. Credentials come from env/compose at deploy time and are never committed; only a `.env.example` with placeholders goes in the repo.
-- The repo gets the standard `.githooks/` version-bump hooks when Phase 0 is scaffolded.
+Bookmarks live in Postgres, per `docs/policy.md` (Brandon, 2026-11-23):
+
+| Thing | Name | Purpose |
+|---|---|---|
+| Database | `landing_db` | Owned by the migration role |
+| Migration role | `landing_migrator` | Owns the schema; used only by the `migrate` step (DDL) |
+| App role | `landing_app` | Used by the running site; `SELECT`/`INSERT`/`UPDATE`/`DELETE` only, owns nothing. Not read-only, because the page writes bookmarks |
+
+`db/bootstrap.sql` creates all three (run once as a superuser, passwords passed as psql variables, never stored). The image runs `migrate` as a one-shot step with the migrator's connection string; the site only ever gets the app role's. A test checks the app role is refused `CREATE`/`DROP`/`ALTER`/`TRUNCATE`.
+
+### One image, three commands
+
+| Command | What |
+|---|---|
+| *(none)* | The site on port 8080. Needs `ConnectionStrings__App`. |
+| `migrate` | Applies EF Core migrations, then exits. Needs `ConnectionStrings__Migrator`. |
+| `healthcheck` | Exits 0 if `/health` answers (the runtime image has no curl). |
+
+## Development
+
+Needs .NET 10 SDK, Node 24, and the local Postgres (`stacks/postgres` container on the dev PC).
+
+```bash
+git config core.hooksPath .githooks          # once per clone: version bumps from commit messages
+cp .env.example .env                         # fill in two generated passwords
+# create landing_db and the roles (superuser password from stacks/postgres/.env):
+docker exec -i postgres psql -U postgres -v migrator_password=... -v app_password=... < db/bootstrap.sql
+while IFS= read -r l; do [ -n "$l" ] && export "$l"; done < .env
+dotnet run --project src/Landing.Api -- migrate
+dotnet run --project src/Landing.Api          # API + built page on http://localhost:8080
+cd src/Landing.Web && npm ci && npm run dev   # page with hot reload on :5173, /api proxied to :8080
+```
+
+Tests: export `LANDING_TEST_ADMIN` (a superuser connection string; each test class makes and drops its own database) and `LANDING_TEST_APP` (the `landing_app` connection from `.env`), then `dotnet test`. Page checks: `npm run lint`, `npm run format:check`, `npm run typecheck`.
+
+Versioning: the hooks bump `<Version>` in `Directory.Build.props` from the commit message (`feat:` minor, other code changes patch, docs-only none). Release: tag `vX.Y.Z` on a green `main` with the version the commit carries.

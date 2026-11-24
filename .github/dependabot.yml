@@ -1,0 +1,48 @@
+# Keep the dependency surface fresh and reviewed (see docs/public-repos.md)
+version: 2
+updates:
+  # NuGet (lock files committed; restore runs --locked-mode). Npgsql/EF stay on the
+  # .NET 10 line: their 11.x needs .NET 11, so ignore majors.
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      nuget-minor-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 10
+
+  # The page (src/Landing.Web)
+  - package-ecosystem: "npm"
+    directory: "/src/Landing.Web"
+    schedule:
+      interval: weekly
+    ignore:
+      # typescript-eslint supports TypeScript < 6.1; move to 7 when it does
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 10
+
+  # GitHub Actions (pinned to commit SHAs; Dependabot bumps the SHA and comment)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"
+    open-pull-requests-limit: 10
+
+  # Docker base images (node build, .NET SDK and ASP.NET runtime)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
