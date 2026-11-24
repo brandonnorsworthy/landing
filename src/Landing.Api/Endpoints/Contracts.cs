@@ -2,7 +2,7 @@ using Landing.Api.Domain;
 
 namespace Landing.Api.Endpoints;
 
-public sealed record BoardDto(IReadOnlyList<GroupDto> Groups, CheckerDto Checker);
+public sealed record BoardDto(IReadOnlyList<GroupDto> Groups, CheckerDto Checker, string Version);
 
 public sealed record CheckerDto(DateTimeOffset? LastRunAt, int IntervalSeconds);
 

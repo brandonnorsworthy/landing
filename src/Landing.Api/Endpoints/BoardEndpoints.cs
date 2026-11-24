@@ -12,6 +12,13 @@ namespace Landing.Api.Endpoints;
 /// </summary>
 public static class BoardEndpoints
 {
+    /// <summary>The product version (Directory.Build.props), without the +commit suffix.</summary>
+    public static readonly string AppVersion =
+        (typeof(BoardEndpoints).Assembly
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
+            .FirstOrDefault()?.InformationalVersion ?? "0.0.0").Split('+')[0];
+
     public static void MapBoardEndpoints(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("/api");
@@ -39,10 +46,23 @@ public static class BoardEndpoints
             .OrderBy(b => b.SortOrder).ThenBy(b => b.Id)
             .Select(b => new
             {
-                b.Id, b.GroupId, b.Name, b.Url, b.IconKind, b.IconColor,
-                HasIcon = b.Favicon != null, b.UpdatedAt,
-                b.IsFavorite, b.IsTemporary, b.IsPrivate, b.SortOrder,
-                b.Status, b.StatusDetail, b.ResponseMs, b.LastCheckedAt, b.StatusSince,
+                b.Id,
+                b.GroupId,
+                b.Name,
+                b.Url,
+                b.IconKind,
+                b.IconColor,
+                HasIcon = b.Favicon != null,
+                b.UpdatedAt,
+                b.IsFavorite,
+                b.IsTemporary,
+                b.IsPrivate,
+                b.SortOrder,
+                b.Status,
+                b.StatusDetail,
+                b.ResponseMs,
+                b.LastCheckedAt,
+                b.StatusSince,
             })
             .ToListAsync(ct);
 
@@ -54,7 +74,8 @@ public static class BoardEndpoints
                     b.HasIcon ? $"/api/bookmarks/{b.Id}/icon?v={b.UpdatedAt.ToUnixTimeMilliseconds()}" : null,
                     b.IsFavorite, b.IsTemporary, b.IsPrivate, b.SortOrder,
                     b.Status, b.StatusDetail, b.ResponseMs, b.LastCheckedAt, b.StatusSince)).ToList())).ToList(),
-            new CheckerDto(checker.LastRunAt, opts.IntervalSeconds));
+            new CheckerDto(checker.LastRunAt, opts.IntervalSeconds),
+            AppVersion);
     }
 
     private static async Task<IResult> GetBoard(LandingDb db, CheckerState checker, IOptions<StatusCheckerOptions> opts, CancellationToken ct) =>
