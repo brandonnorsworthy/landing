@@ -24,7 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 var appConnection = builder.Configuration.GetConnectionString("App")
     ?? throw new InvalidOperationException("ConnectionStrings:App is not set.");
 
-builder.Services.AddDbContext<LandingDb>(o => o.UseNpgsql(appConnection));
+builder.Services.AddDbContext<LandingDb>(o => o.UseNpgsql(Connections.Harden(appConnection)));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<CheckerState>();
 builder.Services.AddLandingHttpClients();
