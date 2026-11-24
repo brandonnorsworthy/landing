@@ -1,10 +1,24 @@
-node_modules/
+# .NET build output
 bin/
 obj/
-dist/
+*.user
+TestResults/
 coverage/
-*.log
+
+# Front-end
+node_modules/
+dist/
+src/Landing.Api/wwwroot/
+*.tsbuildinfo
+.vite/
+
+# Secrets and local config (only .env.example is committed)
 .env
+.env.*
+!.env.example
+
+# Logs, editors, OS
+*.log
 .vs/
 .idea/
 .vscode/

@@ -35,7 +35,7 @@ Current phase: **Phase 0 (MVP)**, not started.
 - **`private` flag is stored from the start** (not enforced until Phase 1) to avoid a later data migration.
 - **The idle lock screen is cosmetic.** Anyone can tap through it. It is not, and must not be treated as, access control.
 - **Server context:** `home.example` has no nginx vhost today, so this will be the first thing served at the bare domain. See `docs/home.example/README.md`.
-- **Reference design:** `mockups/` holds the original phone-sized prototype (open `mockups/index.html`). It is a reference for the port, not code to carry forward.
+- **Reference design:** `mockups/` holds the original phone-sized prototype (open `mockups/index.html`) and a board of the screens it lacks (`mockups/screens.html`: desktop grid, add/edit, arrange, empty/loading/error). Both are references for the port, not code to carry forward.
 
 ### What the prototype has that Phase 0 keeps, changes, or defers
 
@@ -50,8 +50,16 @@ Current phase: **Phase 0 (MVP)**, not started.
 - What `warning` means for a reachability check (slow? non-2xx?).
 - "Earthy mode" toggle in the design: real theme switch, or remove?
 - Do Settings persist across devices, or stay per device?
-- Designs still needed: add/edit form, empty state, loading and error states, desktop grid.
+- ~~Designs still needed: add/edit form, empty state, loading and error states, desktop grid.~~ Drafted in `mockups/screens.html` (SPOKE-26), pending Brandon's review.
 
 ## Tech
 
-Not chosen yet. Defaults come from `docs/policy.md` at implementation time.
+Mostly not chosen yet. Defaults come from `docs/policy.md` at implementation time.
+
+**Decided (Brandon, 2026-11-23): bookmarks live in Postgres**, following the policy's per-product setup:
+
+- Database `landing_db` on the existing local Postgres (dev PC), owned by the migration role.
+- `landing_migrator`: owns the schema and runs migrations only (DDL).
+- `landing_app`: the role the running site uses. Data access only (`SELECT`/`INSERT`/`UPDATE`/`DELETE` on its tables), with no DDL and no ownership. It isn't read-only, because the UI adds, edits, and deletes bookmarks.
+- Parameterized queries only. Credentials come from env/compose at deploy time and are never committed; only a `.env.example` with placeholders goes in the repo.
+- The repo gets the standard `.githooks/` version-bump hooks when Phase 0 is scaffolded.
